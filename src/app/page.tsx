@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { getSession } from "@/lib/auth";
 
 const STEPS = [
@@ -64,11 +65,31 @@ function ResultPreview() {
   );
 }
 
-export default async function LandingPage() {
+async function PrimaryCtaLink({ className }: { className: string }) {
   const session = await getSession();
-  const primaryHref = session ? "/dashboard" : "/register";
-  const primaryLabel = session ? "前往我的工作區" : "免費開始審查";
+  return (
+    <Link href={session ? "/dashboard" : "/register"} className={className}>
+      {session ? "前往我的工作區" : "免費開始審查"} →
+    </Link>
+  );
+}
 
+// 登入狀態需讀取 cookie,以 Suspense 串流,其餘頁面內容可預先渲染
+function PrimaryCta({ className }: { className: string }) {
+  return (
+    <Suspense
+      fallback={
+        <Link href="/register" className={className}>
+          免費開始審查 →
+        </Link>
+      }
+    >
+      <PrimaryCtaLink className={className} />
+    </Suspense>
+  );
+}
+
+export default function LandingPage() {
   return (
     <>
       {/* Hero */}
@@ -88,9 +109,7 @@ export default async function LandingPage() {
               上傳合約,數秒內獲得白話摘要、風險分級與具體修改建議。不必再獨自面對密密麻麻的條文。
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
-              <Link href={primaryHref} className="rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-accent-ink transition hover:opacity-90">
-                {primaryLabel} →
-              </Link>
+              <PrimaryCta className="rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-accent-ink transition hover:opacity-90" />
               <Link href="/#how" className="rounded-full border border-line bg-surface px-7 py-3.5 text-sm font-medium transition hover:border-ink">
                 看看如何運作
               </Link>
@@ -200,9 +219,9 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-accent px-8 py-16 text-center text-accent-ink sm:px-16">
           <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">下一份合約,先讓 Clause 看一遍。</h2>
           <p className="mx-auto mt-4 max-w-xl text-accent-ink/75">註冊只需 Email 與密碼,立即上傳第一份合約。</p>
-          <Link href={primaryHref} className="mt-8 inline-block rounded-full bg-paper px-8 py-3.5 text-sm font-medium text-ink transition hover:bg-white">
-            {primaryLabel} →
-          </Link>
+          <div className="mt-8">
+            <PrimaryCta className="inline-block rounded-full bg-paper px-8 py-3.5 text-sm font-medium text-ink transition hover:bg-white" />
+          </div>
         </div>
       </section>
     </>

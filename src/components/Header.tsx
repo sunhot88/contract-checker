@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "./LogoutButton";
 
@@ -16,9 +17,38 @@ export function Logo({ className = "" }: { className?: string }) {
   );
 }
 
-export default async function Header() {
+const btnPrimary = "rounded-full bg-accent px-4 py-2 font-medium text-accent-ink transition hover:opacity-90";
+
+async function AuthNav() {
   const session = await getSession();
 
+  return session ? (
+    <>
+      <Link href="/dashboard" className={btnPrimary}>
+        我的工作區
+      </Link>
+      <span className="hidden max-w-40 truncate text-ink-soft lg:inline">{session.email}</span>
+      <LogoutButton />
+    </>
+  ) : (
+    <GuestNav />
+  );
+}
+
+function GuestNav() {
+  return (
+    <>
+      <Link href="/login" className="px-3 py-2 text-ink-soft transition hover:text-ink">
+        登入
+      </Link>
+      <Link href="/register" className={btnPrimary}>
+        免費開始
+      </Link>
+    </>
+  );
+}
+
+export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
@@ -42,24 +72,9 @@ export default async function Header() {
         </nav>
 
         <div className="flex items-center gap-2.5 text-sm">
-          {session ? (
-            <>
-              <Link href="/dashboard" className="rounded-full bg-accent px-4 py-2 font-medium text-accent-ink transition hover:opacity-90">
-                我的工作區
-              </Link>
-              <span className="hidden max-w-40 truncate text-ink-soft lg:inline">{session.email}</span>
-              <LogoutButton />
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="px-3 py-2 text-ink-soft transition hover:text-ink">
-                登入
-              </Link>
-              <Link href="/register" className="rounded-full bg-accent px-4 py-2 font-medium text-accent-ink transition hover:opacity-90">
-                免費開始
-              </Link>
-            </>
-          )}
+          <Suspense fallback={<GuestNav />}>
+            <AuthNav />
+          </Suspense>
         </div>
       </div>
     </header>

@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Logo } from "./Header";
 
+async function Year() {
+  "use cache";
+  return new Date().getFullYear();
+}
+
 export default function Footer() {
   return (
     <footer className="border-t border-line bg-paper-2/60">
@@ -30,7 +35,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-ink-soft sm:flex-row sm:justify-between">
-          <p>© {new Date().getFullYear()} Clause. All rights reserved.</p>
+          <p>© <Year /> Clause. All rights reserved.</p>
           <p>AI 審查結果僅供參考,不構成法律意見;重要合約請諮詢專業律師。</p>
         </div>
       </div>
